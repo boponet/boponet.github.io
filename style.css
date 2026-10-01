@@ -1,0 +1,98 @@
+/* Colin McRae Rally 2.0 main-menu language: sage ground, lowercase Arial, white for what is
+   selected, mint for what is not, thin hairlines between things. */
+:root {
+  --sage: #9cb3b4;
+  --white: #ffffff;
+  --mint: #d7ebe1;
+  --face: "Arimo", Arial, "Helvetica Neue", Helvetica, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body { background: var(--sage); color: var(--white); font-family: var(--face); -webkit-font-smoothing: antialiased; overflow: hidden; }
+
+.game {
+  height: 100%;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+
+/* the menu above the board: restart | mute | rules, and the wins count */
+.topbar { display: flex; justify-content: space-between; align-items: baseline; gap: 8px 16px; flex-wrap: wrap; max-width: 100%; }
+.game-menu { display: flex; }
+.game-menu button { font: inherit; font-size: 16px; background: none; border: 0; color: var(--mint); padding: 0 10px; line-height: 1.4; cursor: pointer; }
+.game-menu button:first-child { padding-left: 0; }
+.game-menu button + button { border-left: 1px solid var(--mint); }
+.game-menu button:hover, .game-menu button[aria-pressed="true"], .game-menu button[aria-expanded="true"] { color: var(--white); }
+.wins { font-size: 16px; color: var(--white); }
+.wins span { color: var(--mint); letter-spacing: .06em; font-variant-numeric: tabular-nums; display: inline-block; transition: color .3s; }
+.wins.bump span { color: var(--white); }
+button:focus-visible, .board:focus-visible { outline: 2px solid var(--white); outline-offset: 3px; }
+
+/* the board fills whatever space is left */
+.stage { flex: 1 1 0; min-height: 0; width: 100%; display: grid; place-items: center; }
+.board-wrap { position: relative; }
+.board { position: relative; user-select: none; -webkit-user-select: none; }
+.board > svg { display: block; touch-action: none; }
+.board [data-r] { cursor: grab; }
+.board.dragging, .board.dragging [data-r] { cursor: grabbing; }
+
+/* a card in the hand, and its shadow */
+.float { position: absolute; pointer-events: none; z-index: 2; }
+.float .sh, .float .fc { position: absolute; inset: 0; transition: transform var(--t-lift, 70ms) ease-out, opacity var(--t-lift, 70ms) ease-out; }
+.float .fc svg { display: block; }
+.float .sh { opacity: 0; }
+.float.up .sh { opacity: .3; transform: translate(var(--sx), var(--sy)); }
+.float.up .fc { transform: translate(var(--lx), var(--ly)); }
+.float.glide { transition: left var(--t-glide, 70ms) ease-out, top var(--t-glide, 70ms) ease-out; }
+
+/* the face-down stack the deal comes from */
+.stack { position: absolute; pointer-events: none; z-index: 1; }
+.stack .layer, .stack-sh { position: absolute; inset: 0; }
+.stack .layer svg { display: block; }
+.stack-sh { opacity: .25; }
+.line-fade { position: absolute; left: 0; top: 0; pointer-events: none; }
+
+/* rules and settings, over the board */
+.panel { position: absolute; inset: 0; z-index: 5; overflow-y: auto; background: rgba(156, 179, 180, .95); padding: clamp(16px, 4%, 40px); display: grid; align-content: start; gap: 18px; }
+.panel[hidden] { display: none; }
+.panel-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; border-bottom: 1px solid var(--mint); padding-bottom: 8px; }
+.panel h2 { margin: 0; font-size: 34px; font-weight: 400; letter-spacing: -.05em; line-height: 1; color: var(--white); }
+.panel-close { font: inherit; font-size: 16px; background: none; border: 0; padding: 0; color: var(--mint); cursor: pointer; }
+.panel-close:hover { color: var(--white); }
+.panel dl { margin: 0; display: grid; gap: 18px; max-width: 60ch; }
+.panel dl > div { display: grid; grid-template-columns: 100px 1fr; gap: 6px 16px; align-items: baseline; }
+.panel dt { font-size: 20px; letter-spacing: -.04em; color: var(--white); line-height: 1.2; }
+.panel dd { margin: 0; color: var(--white); font-size: 15px; line-height: 1.55; }
+@media (max-width: 480px) { .panel dl > div { grid-template-columns: 1fr; } }
+
+/* menu-style choices: white when selected, mint when not, hairlines between */
+.choice { display: flex; flex-wrap: wrap; }
+.choice button { font: inherit; font-size: 20px; letter-spacing: -.04em; background: none; border: 0; color: var(--mint); padding: 0 12px; line-height: 1.2; cursor: pointer; }
+.choice button:first-child { padding-left: 0; }
+.choice button + button { border-left: 1px solid var(--mint); }
+.choice button:hover, .choice button[aria-pressed="true"] { color: var(--white); }
+/* a choice with a detail line under its name, e.g. the board size */
+.choice button:has(small) { display: grid; gap: 2px; text-align: left; }
+.choice small { font-size: 14px; letter-spacing: .02em; color: var(--mint); font-variant-numeric: tabular-nums; }
+
+/* volume: a hairline track, white up to the level, a thin white bar for the handle */
+.volume { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.volume output { flex: none; width: 2.2em; font-size: 16px; color: var(--mint); letter-spacing: .06em; font-variant-numeric: tabular-nums; }
+.volume input[type="range"] {
+  --fill: 100%;
+  -webkit-appearance: none; appearance: none;
+  width: min(220px, 100%); height: 22px; margin: 0; background: none; cursor: pointer;
+}
+.volume input[type="range"]::-webkit-slider-runnable-track {
+  height: 1px; background: linear-gradient(to right, var(--white) var(--fill), var(--mint) var(--fill));
+}
+.volume input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 3px; height: 18px; margin-top: -8.5px; border: 0; border-radius: 0; background: var(--white);
+}
+.volume input[type="range"]::-moz-range-track { height: 1px; background: var(--mint); }
+.volume input[type="range"]::-moz-range-progress { height: 1px; background: var(--white); }
+.volume input[type="range"]::-moz-range-thumb { width: 3px; height: 18px; border: 0; border-radius: 0; background: var(--white); }
+.volume input[type="range"]:focus-visible { outline: 2px solid var(--white); outline-offset: 4px; }
+.volume input[type="range"]:disabled { opacity: .45; cursor: default; }
